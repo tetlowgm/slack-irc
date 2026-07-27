@@ -1,7 +1,7 @@
-import chai from 'chai';
-import { highlightUsername } from '../lib/helpers';
+import { should } from 'chai';
+import { highlightUsername } from '../lib/helpers.js';
 
-chai.should();
+should();
 
 describe('Bare Slack Username Replacement', () => {
   ['', ',', '.', ':', '!', '?'].forEach((c) => {

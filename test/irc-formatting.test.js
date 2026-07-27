@@ -1,12 +1,15 @@
 /* eslint-disable prefer-arrow-callback */
-import chai from 'chai';
+import { should } from 'chai';
 import { stripIrcFormatting } from '../lib/helpers.js';
 
-chai.should();
+should();
 
-const CTRL_S = '';
-const COLOUR = '';
-const HEX_COLOUR = '';
+// Built with fromCharCode on purpose: literal control characters in source are
+// invisible and get mangled by editors and diffs.
+const chr = code => String.fromCharCode(code);
+const CTRL_S = chr(0x13);
+const COLOUR = chr(0x03);
+const HEX_COLOUR = chr(0x04);
 
 describe('IRC Formatting Removal', () => {
   it('should leave plain text alone', () => {
@@ -22,13 +25,13 @@ describe('IRC Formatting Removal', () => {
   });
 
   [
-    ['bold', ''],
-    ['italic', ''],
-    ['underline', ''],
-    ['reverse', ''],
-    ['monospace', ''],
-    ['strikethrough', ''],
-    ['reset', ''],
+    ['bold', chr(0x02)],
+    ['italic', chr(0x1d)],
+    ['underline', chr(0x1f)],
+    ['reverse', chr(0x16)],
+    ['monospace', chr(0x11)],
+    ['strikethrough', chr(0x1e)],
+    ['reset', chr(0x0f)]
   ].forEach(([name, code]) => {
     it(`should remove the ${name} toggle`, () => {
       stripIrcFormatting(`${code}hey${code}`).should.equal('hey');
@@ -57,7 +60,7 @@ describe('IRC Formatting Removal', () => {
 
   it('should remove every control character in the C0 range', () => {
     for (let c = 0; c <= 0x1f; c += 1) {
-      stripIrcFormatting(`a${String.fromCharCode(c)}b`).should.equal('ab');
+      stripIrcFormatting(`a${chr(c)}b`).should.equal('ab');
     }
   });
 });

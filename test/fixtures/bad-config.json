@@ -1,7 +1,9 @@
 [
   {
     "server": "irc.bottest.org",
-    "token": "hei",
+    "slack_bot_token": "xoxb-testtoken",
+    "slack_signing_secret": "testsigningsecret",
+    "slack_app_token": "xapp-testtoken",
     "channelMapping": {
       "#slack": "#irc"
     }
