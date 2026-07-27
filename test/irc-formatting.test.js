@@ -1,4 +1,3 @@
-/* eslint-disable prefer-arrow-callback */
 import { should } from 'chai';
 import { stripIrcFormatting } from '../lib/helpers.js';
 

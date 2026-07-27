@@ -1,4 +1,3 @@
-/* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import sinon from 'sinon';
 import { Bot, stubDependencies } from './stubs/setup.js';
 import index from '../lib/index.js';

@@ -1,4 +1,3 @@
-/* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import sinon from 'sinon';
 import { createBot, stubDependencies } from './stubs/setup.js';
 import { TEST_CHANNEL, TEST_USER } from './stubs/slack-stub.js';
@@ -162,7 +161,8 @@ describe('Bot', function () {
     });
 
     it('should strip IRC formatting before sending to slack', async function () {
-      await this.bot.sendToSlack('testuser', '#irc', `${BOLD}bold${BOLD} and ${COLOUR}4red${RESET}`);
+      const text = `${BOLD}bold${BOLD} and ${COLOUR}4red${RESET}`;
+      await this.bot.sendToSlack('testuser', '#irc', text);
       this.postMessage.firstCall.args[0].should.include({ text: 'bold and red' });
     });
 
