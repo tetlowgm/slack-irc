@@ -1,25 +1,18 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-import chai from 'chai';
 import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
-import Bot from '../lib/bot';
-import index from '../lib/index';
-import testConfig from './fixtures/test-config.json';
-import singleTestConfig from './fixtures/single-test-config.json';
-import badConfig from './fixtures/bad-config.json';
-import stringConfig from './fixtures/string-config.json';
-import { createBots } from '../lib/helpers';
-
-chai.should();
-chai.use(sinonChai);
+import { Bot, stubDependencies } from './stubs/setup.js';
+import index from '../lib/index.js';
+import { createBots } from '../lib/helpers.js';
+import testConfig from './fixtures/test-config.json' with { type: 'json' };
+import singleTestConfig from './fixtures/single-test-config.json' with { type: 'json' };
+import badConfig from './fixtures/bad-config.json' with { type: 'json' };
+import stringConfig from './fixtures/string-config.json' with { type: 'json' };
 
 describe('Create Bots', function () {
-  const sandbox = sinon.sandbox.create({
-    useFakeTimers: false,
-    useFakeServer: false
-  });
+  const sandbox = sinon.createSandbox();
 
   beforeEach(function () {
+    stubDependencies(sandbox);
     this.connectStub = sandbox.stub(Bot.prototype, 'connect');
   });
 
@@ -30,13 +23,13 @@ describe('Create Bots', function () {
   it('should work when given an array of configs', function () {
     const bots = createBots(testConfig);
     bots.length.should.equal(2);
-    this.connectStub.should.have.been.called;
+    this.connectStub.should.have.been.calledTwice;
   });
 
   it('should work when given an object as a config file', function () {
     const bots = createBots(singleTestConfig);
     bots.length.should.equal(1);
-    this.connectStub.should.have.been.called;
+    this.connectStub.should.have.been.calledOnce;
   });
 
   it('should throw a configuration error if any fields are missing', function () {
@@ -49,7 +42,7 @@ describe('Create Bots', function () {
     (wrap).should.throw('Invalid configuration file given');
   });
 
-  it('should be possible to run it through require(\'slack-irc\')', function () {
+  it('should be possible to run it through the package entry point', function () {
     const bots = index(singleTestConfig);
     bots.length.should.equal(1);
     this.connectStub.should.have.been.called;

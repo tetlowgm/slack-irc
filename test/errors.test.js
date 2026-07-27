@@ -1,7 +1,7 @@
-import chai from 'chai';
-import { ConfigurationError } from '../lib/errors';
+import { should } from 'chai';
+import { ConfigurationError } from '../lib/errors.js';
 
-chai.should();
+should();
 
 describe('Errors', () => {
   it('should have a configuration error', () => {
