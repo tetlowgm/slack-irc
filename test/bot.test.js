@@ -59,6 +59,40 @@ describe('Bot', function () {
     this.bot.slack.web.chat.postMessage.should.have.been.calledWith(1, text, message);
   });
 
+  it('should not post a message that is only a Ctrl+S', function () {
+    this.bot.sendToSlack('testuser', '#irc', '');
+    this.bot.slack.web.chat.postMessage.should.not.have.been.called;
+  });
+
+  it('should not post a message that is only IRC formatting', function () {
+    this.bot.sendToSlack('testuser', '#irc', '4');
+    this.bot.slack.web.chat.postMessage.should.not.have.been.called;
+  });
+
+  it('should strip IRC formatting before sending to slack', function () {
+    return this.bot.sendToSlack('testuser', '#irc', 'bold and 4red')
+      .then(() => {
+        this.bot.slack.web.chat.postMessage.should.have.been.calledWith(
+          1, 'bold and red'
+        );
+      });
+  });
+
+  it('should not reject when slack refuses the message', function () {
+    this.bot.slack.web.chat.postMessage = sandbox.stub()
+      .returns(Promise.reject(new Error('An API error occurred: no_text')));
+
+    // Resolving at all is the assertion: an unhandled rejection here kills the process.
+    return this.bot.sendToSlack('testuser', '#irc', 'testmessage');
+  });
+
+  it('should not reject when the member lookup fails', function () {
+    this.bot.slack.web.conversations.members = sandbox.stub()
+      .returns(Promise.reject(new Error('An API error occurred: ratelimited')));
+
+    return this.bot.sendToSlack('testuser', '#irc', 'testmessage');
+  });
+
   it('should send messages to slack groups if the bot is in the channel', function () {
     this.bot.slack.rtm.dataStore.getChannelOrGroupByName = () => {
       const channel = new ChannelStub();
