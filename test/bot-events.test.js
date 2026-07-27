@@ -1,4 +1,3 @@
-/* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import sinon from 'sinon';
 import { createBot, stubDependencies } from './stubs/setup.js';
 import config from './fixtures/single-test-config.json' with { type: 'json' };

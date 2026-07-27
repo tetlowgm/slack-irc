@@ -1,4 +1,3 @@
-/* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import { should, expect } from 'chai';
 import sinon from 'sinon';
 import cli from '../lib/cli.js';

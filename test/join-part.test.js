@@ -1,4 +1,3 @@
-/* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import _ from 'lodash';
 import sinon from 'sinon';
 import { createBot, stubDependencies } from './stubs/setup.js';
