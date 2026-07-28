@@ -74,6 +74,10 @@ config a readable startup error rather than an unhandled rejection.
   if nothing displayable survives. This is not cosmetic: Slack strips control characters itself and
   then rejects the now-empty text with `no_text` — an unhandled rejection that used to kill the
   process. A lone Ctrl+S from IRC was enough to do it.
+- Easter egg: on that same empty-text path, `kickTroublemaker` kicks the IRC nick `trouble` with
+  "stop trying to crash me" when the message contained a Ctrl+S — but only if `canKick` finds the
+  bot holding an op-ish prefix (`~&@%`) in `ircClient.chans[channel].users`. Never a ban, and it
+  fires before the channel-mapping check, so it applies in unmapped channels too.
 - `highlightUsername` re-prefixes bare IRC nicks with `@` for each current Slack channel member so
   notifications fire.
 - Only the `me_message` and `file_share` subtypes cross from Slack to IRC; every other subtype is

@@ -16,7 +16,7 @@ should();
  */
 export function stubDependencies(sandbox) {
   sandbox.stub(Bot.prototype, 'createSlackApp').callsFake(() => new SlackAppStub());
-  sandbox.stub(irc, 'Client').callsFake(() => new ClientStub());
+  sandbox.stub(irc, 'Client').callsFake((server, nick) => new ClientStub(nick));
 
   return {
     info: sandbox.stub(logger, 'info'),

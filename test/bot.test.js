@@ -172,6 +172,80 @@ describe('Bot', function () {
     });
   });
 
+  describe('kicking the troublemaker', function () {
+    const kick = ['KICK', '#irc', 'trouble', 'stop trying to crash me'];
+
+    beforeEach(function () {
+      this.send = this.bot.ircClient.send;
+      // The bot connects as `test` per the fixture, and needs ops to kick.
+      this.bot.ircClient.giveModes('#irc', '@');
+    });
+
+    it('should kick trouble for a lone Ctrl+S', async function () {
+      await this.bot.sendToSlack('trouble', '#irc', CTRL_S);
+      this.send.should.have.been.calledWithExactly(...kick);
+    });
+
+    it('should still drop the message rather than posting it', async function () {
+      await this.bot.sendToSlack('trouble', '#irc', CTRL_S);
+      this.postMessage.should.not.have.been.called;
+    });
+
+    it('should match the nick case-insensitively', async function () {
+      await this.bot.sendToSlack('TrOuBlE', '#irc', CTRL_S);
+      this.send.should.have.been.calledWithExactly('KICK', '#irc', 'TrOuBlE', kick[3]);
+    });
+
+    it('should kick with any prefix that carries the power to do so', async function () {
+      ['~', '&', '@', '%', '@+'].forEach((modes) => {
+        this.send.resetHistory();
+        this.bot.ircClient.giveModes('#irc', modes);
+        this.bot.sendToSlack('trouble', '#irc', CTRL_S);
+        this.send.should.have.been.calledWithExactly(...kick);
+      });
+    });
+
+    it('should not kick when the bot is only voiced', async function () {
+      this.bot.ircClient.giveModes('#irc', '+');
+      await this.bot.sendToSlack('trouble', '#irc', CTRL_S);
+      this.send.should.not.have.been.called;
+    });
+
+    it('should not kick when the bot has no modes at all', async function () {
+      this.bot.ircClient.giveModes('#irc', '');
+      await this.bot.sendToSlack('trouble', '#irc', CTRL_S);
+      this.send.should.not.have.been.called;
+    });
+
+    it('should not kick from a channel the bot does not know about', async function () {
+      this.bot.ircClient.chans = {};
+      await this.bot.sendToSlack('trouble', '#irc', CTRL_S);
+      this.send.should.not.have.been.called;
+    });
+
+    it('should not kick anyone else for the same message', async function () {
+      await this.bot.sendToSlack('testuser', '#irc', CTRL_S);
+      this.send.should.not.have.been.called;
+    });
+
+    it('should not kick trouble for other invisible messages', async function () {
+      await this.bot.sendToSlack('trouble', '#irc', `${BOLD}${UNDERLINE}${COLOUR}4${RESET}`);
+      this.send.should.not.have.been.called;
+    });
+
+    it('should not kick trouble for a message that has displayable text', async function () {
+      await this.bot.sendToSlack('trouble', '#irc', `hel${CTRL_S}lo`);
+      this.send.should.not.have.been.called;
+      this.postMessage.firstCall.args[0].should.include({ text: 'hello' });
+    });
+
+    it('should kick and nothing else — no ban, no mode change', async function () {
+      await this.bot.sendToSlack('trouble', '#irc', CTRL_S);
+      this.send.should.have.been.calledOnce;
+      this.send.firstCall.args[0].should.equal('KICK');
+    });
+  });
+
   describe('Slack API failures', function () {
     it('should not reject when slack refuses the message', async function () {
       this.postMessage.rejects(new Error('An API error occurred: no_text'));
