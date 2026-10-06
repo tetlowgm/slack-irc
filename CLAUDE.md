@@ -5,10 +5,10 @@ Guidance for Claude Code (claude.ai/code) working in this repository.
 ## Orientation
 
 This is a fork (`tetlowgm/slack-irc`) of `ekmartin/slack-irc`. The branch that matters is
-**`fix-for-slack-changes`** — that is what runs in production, and it is a substantial rewrite of
-`master`: `@slack/client` + RTM became `@slack/bolt` in socket mode, Babel was dropped, and the
-package became native ES modules. Work against that branch, not `master`, unless you have a
-specific reason.
+**`easter-egg-kick-trouble`** — that is what runs in production. It builds on
+`fix-for-slack-changes`, which is a substantial rewrite of `master`: `@slack/client` + RTM became
+`@slack/bolt` in socket mode, Babel was dropped, and the package became native ES modules. Work
+against `easter-egg-kick-trouble`, not `master`, unless you have a specific reason.
 
 There is **no build step**. The package runs straight from `lib/`; `dist/` no longer exists.
 
@@ -117,7 +117,11 @@ this.bot = await createBot(config);
 
 - `.gitignore` contains `/*.json`, which swallows **every top-level JSON file**. A `.mocharc.json`
   would look fine locally and never be committed — that is why the mocha config lives in
-  `package.json`. Same trap for any new root-level JSON.
+  `package.json`. Same trap for any new root-level JSON. It also means `package-lock.json` is never
+  committed, so a dependency bump only reaches the server via `npm install` after pulling.
+- Bolt must stay on v4+. Bolt 3 pulls in `@slack/socket-mode` 1.x, whose `finity` state machine
+  throws an uncatchable `Unhandled event 'server explicit disconnect' in state 'connecting'` when
+  Slack sends a disconnect mid-handshake, killing the process.
 - ESM rules bite: relative imports need the `.js` extension, and JSON imports need
   `with { type: 'json' }`. The `import/extensions` lint rule is there to catch the first one,
   because getting it wrong is a runtime `ERR_MODULE_NOT_FOUND`, not a style nit.
