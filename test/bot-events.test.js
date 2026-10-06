@@ -26,6 +26,27 @@ describe('Bot Events', function () {
     this.bot.ircClient.send.getCall(1).args.should.deep.equal(config.autoSendCommands[1]);
   });
 
+  it('should info log the Slack connection on startup', function () {
+    this.logs.info.should.have.been.calledWith('Connected to Slack');
+    this.logs.info.should.have.been.calledWith('Cached 1 Slack channels and 1 Slack users');
+    this.logs.info.should.have.been.calledWith('Connecting to IRC server irc.bottest.org as test');
+  });
+
+  it('should info log the IRC connection on registered IRC event', function () {
+    this.bot.ircClient.emit('registered');
+    this.logs.info.should.have.been.calledWith('Connected to IRC server irc.bottest.org as test');
+  });
+
+  it('should info log when the bot itself joins an IRC channel', function () {
+    this.bot.ircClient.emit('join', '#irc', 'test');
+    this.logs.info.should.have.been.calledWith('Joined IRC channel #irc');
+  });
+
+  it('should not info log when someone else joins an IRC channel', function () {
+    this.bot.ircClient.emit('join', '#irc', 'someoneelse');
+    this.logs.info.should.not.have.been.calledWith('Joined IRC channel #irc');
+  });
+
   it('should error log on IRC error events', function () {
     const ircError = new Error('irc');
     this.bot.ircClient.emit('error', ircError);
