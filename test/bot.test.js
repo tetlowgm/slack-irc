@@ -301,6 +301,31 @@ describe('Bot', function () {
       );
     });
 
+    it('should send files from the files array to irc', function () {
+      this.bot.sendToIRC(slackMessage({
+        text: 'look at these',
+        subtype: 'file_share',
+        files: [{ permalink: 'p1' }, { permalink: 'p2', permalink_public: 'pub2' }]
+      }));
+      this.say.should.have.been.calledWith(
+        '#irc', '<testuser> File uploaded p1, p2 / pub2 - look at these'
+      );
+    });
+
+    it('should send just the text when no file has a permalink', function () {
+      this.bot.sendToIRC(slackMessage({
+        text: 'hidden file',
+        subtype: 'file_share',
+        files: [{ id: 'F1', mode: 'hidden_by_limit' }]
+      }));
+      this.say.should.have.been.calledWith('#irc', '<testuser> hidden file');
+    });
+
+    it('should drop a file_share with no links and no text', function () {
+      this.bot.sendToIRC(slackMessage({ text: '', subtype: 'file_share' }));
+      this.say.should.not.have.been.called;
+    });
+
     it('should not send messages to irc if the channel isn\'t mapped', function () {
       this.bot.sendToIRC(slackMessage({ channel: 'CWRONGID', text: 'hi' }));
       this.say.should.not.have.been.called;
