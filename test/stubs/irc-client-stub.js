@@ -6,8 +6,11 @@ import sinon from 'sinon';
  * on those and drive the bridge by emitting IRC events.
  */
 export default class ClientStub extends EventEmitter {
-  constructor() {
+  constructor(nick) {
     super();
+    // The real client keeps its current nick here; the bot uses it to tell
+    // its own joins apart from everyone else's.
+    this.nick = nick;
     this.say = sinon.stub();
     this.send = sinon.stub();
     this.join = sinon.stub();
